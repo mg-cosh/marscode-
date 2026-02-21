@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火星纪元 · 终端接入</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0c0b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+        
+        .terminal {
+            background: #0f1a14;
+            width: 100%;
+            max-width: 700px;
+            border: 2px solid #3a5a4a;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 255, 100, 0.2);
+            overflow: hidden;
+        }
+        
+        .terminal-header {
+            background: #1a2a20;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #3a5a4a;
+        }
+        
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-right: 20px;
+        }
+        
+        .terminal-btn {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+        }
+        
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
+        
+        .terminal-title {
+            color: #7aa88a;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        .terminal-body {
+            padding: 30px 25px;
+            color: #b3ffcf;
+            font-size: 16px;
+            line-height: 1.8;
+            background: #0a130e;
+        }
+        
+        .line {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .prompt {
+            color: #7aa88a;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        
+        .command {
+            color: #ffffff;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #b3ffcf;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .output {
+            color: #7aa88a;
+            margin-left: 20px;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 2px solid #3a5a4a;
+            width: 100%;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #1a2a20;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #27c93f, #b3ffcf);
+            animation: progress 2s ease-out forwards;
+        }
+        
+        @keyframes progress {
+            to { width: 100%; }
+        }
+        
+        .button {
+            background: transparent;
+            border: 2px solid #3a5a4a;
+            color: #b3ffcf;
+            padding: 12px 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0 10px;
+            width: 100%;
+            letter-spacing: 2px;
+        }
+        
+        .button:hover {
+            background: #1a2a20;
+            border-color: #27c93f;
+            box-shadow: 0 0 20px rgba(39, 201, 63, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .mars-ascii {
+            color: #4a7a5a;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: pre;
+            text-align: center;
+            margin: 20px 0;
+            opacity: 0.6;
+        }
+        
+        .glitch {
+            color: #ff5f56;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .link-card {
+            background: #0f1a14;
+            border: 1px solid #3a5a4a;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <div class="terminal-btn close"></div>
+                <div class="terminal-btn minimize"></div>
+                <div class="terminal-btn maximize"></div>
+            </div>
+            <div class="terminal-title">root@mars-colony:~# /projects/mars-era</div>
+        </div>
+        
+        <div class="terminal-body" id="terminalBody">
+            <!-- 动态内容会由 JavaScript 填充 -->
+        </div>
+    </div>
+
+    <script>
+        // 在这里修改你的个人信息
+        const CONFIG = {
+            name: "张小白",                // 你的名字
+            projectName: "火星纪元·重塑家园",  // 作品名
+            techStack: [
+                "json - 生态循环模拟",
+                "png - 火星地貌渲染",
+                "scratch - 实时通讯"
+            ],
+            email: "yushimiao_wise@hotmail.com",      // 你的邮箱
+            github: "where", // 项目地址
+            videoUrl: "https://www.bilibili.com/video/BV1xx411c7H9", // 演示视频链接，记得替换
+            judgeName: "评委老师"                 // 可以改成 "评委老师" 或 "访客"
+        };
+
+        const terminalBody = document.getElementById('terminalBody');
+        
+        // 终端输出行
+        const lines = [
+            { type: 'command', text: 'ssh architect@mars-colony.local' },
+            { type: 'output', text: '连接到火星殖民地服务器...', delay: 500 },
+            { type: 'output', text: '连接成功 | 延迟: 12.4s (地火通讯延迟)', delay: 800 },
+            { type: 'output', text: '身份验证: 架构师权限已授予', delay: 1100 },
+            { type: 'command', text: 'ls -la /missions/', delay: 1400 },
+            { type: 'output', text: 'drwxr-xr-x  2 root  root  4096 Mar 10  2111 ./', delay: 1700 },
+            { type: 'output', text: 'drwxr-xr-x 10 root  root  4096 Jan 01  2111 ../', delay: 2000 },
+            { type: 'output', text: '-rw-r--r--  1 judge root  2048 Mar 10  2111 .project_visibility', delay: 2300 },
+            { type: 'output', text: 'drwxr-xr-x  5 ' + CONFIG.name + '  root  4096 Mar 15  2111 ' + CONFIG.projectName + '/', delay: 2600 },
+            { type: 'command', text: 'cd ' + CONFIG.projectName + ' && cat README.md', delay: 2900 },
+            { type: 'output', text: '', delay: 3200, special: 'projectInfo' },
+            { type: 'command', text: './run_demo.sh', delay: 4000 },
+            { type: 'output', text: '▶ 正在启动火星重建模拟器...', delay: 4300 },
+            { type: 'output', text: '', delay: 4600, special: 'progressBar' },
+            { type: 'output', text: '✅ 系统就绪！等待指令...', delay: 5200 },
+            { type: 'output', text: '', delay: 5500, special: 'actionButtons' }
+        ];
+
+        let currentLine = 0;
+        
+        function addLine(lineConfig) {
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'line';
+            
+            if (lineConfig.type === 'command') {
+                const promptSpan = document.createElement('span');
+                promptSpan.className = 'prompt';
+                promptSpan.textContent = '$>';
+                
+                const commandSpan = document.createElement('span');
+                commandSpan.className = 'command';
+                commandSpan.textContent = lineConfig.text;
+                
+                lineDiv.appendChild(promptSpan);
+                lineDiv.appendChild(commandSpan);
+            } else if (lineConfig.type === 'output') {
+                const outputDiv = document.createElement('div');
+                outputDiv.className = 'output';
+                
+                if (lineConfig.special === 'projectInfo') {
+                    outputDiv.innerHTML = `
+                        <div style="margin: 10px 0;">
+                            <span style="color:#ffbd2e;">项目名称</span>：${CONFIG.projectName}<br>
+                            <span style="color:#ffbd2e;">首席架构师</span>：${CONFIG.name}<br>
+                            <span style="color:#ffbd2e;">技术栈</span>：<br>
+                            ${CONFIG.techStack.map(tech => `  └─ ${tech}`).join('<br>')}<br>
+                            <span style="color:#ffbd2e;">项目状态</span>：<span style="color:#27c93f;">● 运行中</span><br>
+                            <span style="color:#ffbd2e;">目标</span>：在火星重建人类家园
+                        </div>
+                    `;
+                } else if (lineConfig.special === 'progressBar') {
+                    outputDiv.innerHTML = `
+                        <div>加载资源文件...</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div>完成 (42MB/42MB)</div>
+                    `;
+                } else if (lineConfig.special === 'actionButtons') {
+                    outputDiv.innerHTML = `
+                        <div style="margin-top: 20px;">
+                            <div style="color:#7aa88a; margin-bottom:10px;">> 可用指令：</div>
+                            <button class="button" onclick="window.open('${CONFIG.videoUrl}', '_blank')">
+                                [▶] 播放演示视频 (./demo_reel.mp4)
+                            </button>
+                            <button class="button" onclick="window.open('https://${CONFIG.github}', '_blank')">
+                                [📂] 查看源代码 (git clone)
+                            </button>
+                            <div class="mars-ascii">
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣶⣶⣶⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀
+                            </div>
+                            <div style="color:#4a7a5a; font-size:12px; text-align:center; margin-top:20px;">
+                                [系统提示] 感谢 ${CONFIG.judgeName} 的访问。<br>
+                                火星重建计划，期待您的评分。
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    outputDiv.textContent = lineConfig.text;
+                }
+                
+                lineDiv.appendChild(outputDiv);
+            }
+            
+            terminalBody.appendChild(lineDiv);
+            // 滚动到底部
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function typeLine(index) {
+            if (index >= lines.length) return;
+            
+            const line = lines[index];
+            
+            // 如果有延迟，等待后执行
+            setTimeout(() => {
+                addLine(line);
+                typeLine(index + 1);
+            }, line.delay || 0);
+        }
+
+        // 启动终端动画
+        window.onload = () => {
+            terminalBody.innerHTML = ''; // 清空
+            typeLine(0);
+        };
+    </script>
+</body>
+</html>
